@@ -16,7 +16,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;color:var(--ui);font-family:'Amiri','Noto Naskh Arabic','Traditional Arabic',serif;min-height:100vh;
 background:radial-gradient(90% 55% at 50% 0%,color-mix(in srgb,var(--acc) 14%,transparent),transparent 70%),var(--bg)}
 .view{display:flex;flex-direction:column;align-items:center;gap:16px;padding:14px 14px 40px}
-.hero{text-align:center;margin-top:6px}
+.concept{font-size:13px;letter-spacing:.08em;color:var(--acc);text-align:center;margin:12px 0 -10px}.hero{text-align:center;margin-top:6px}
 .hero::after{content:"";display:block;width:56px;height:3px;background:var(--acc);margin:10px auto 0;border-radius:2px}
 h1{font:700 clamp(30px,6vw,46px)/1.3 'Amiri',serif;margin:0}
 .sub{color:var(--mut);font-size:16px;margin:0;text-align:center}
@@ -102,6 +102,7 @@ body>*:not(#pr){display:none!important}
 <body>
 <div id="shelf" class="view">
   <button id="wm" class="gbtn" type="button">وضع الكتابة</button>
+  <p class="concept" id="concept">مكتبة المخطوطات · مساحة رقمية لقراءة الأعمال السردية</p>
   <div class="hero"><h1 id="st"></h1></div>
   <p class="sub" id="ss"></p>
   <div class="row" id="wbar" hidden>
@@ -134,6 +135,8 @@ body>*:not(#pr){display:none!important}
   <label>العنوان<input id="ftitle" maxlength="60"></label>
   <label>اسم الكاتب (اختياري)<input id="fauthor" maxlength="40"></label>
   <label>النوع<select id="ftype"><option value="note">دفتر</option><option value="book">كتاب</option></select></label>
+  <label>تصنيف المادة<select id="fkind"><option value="story">القصة / المخطوطة الرئيسية</option><option value="logline">Logline</option><option value="synopsis">Synopsis</option><option value="treatment">Treatment</option><option value="scene">المشهد النموذجي</option><option value="bio">السيرة الذاتية</option><option value="other">مادة أخرى</option></select></label>
+  <label style="flex-direction:row;align-items:center;color:var(--ui)"><input id="fpublish" type="checkbox" checked> إظهار هذه المادة في واجهة التقديم</label>
   <label>الحجم<select id="fsize"></select></label>
   <label>عدد الصفحات<select id="fpages"></select></label>
   <label>الورق<select id="fpaper"><option value="lined">مسطّر</option><option value="plain">سادة</option></select></label>
@@ -149,7 +152,8 @@ body>*:not(#pr){display:none!important}
 let WRITE=location.hash==='#write';const $=s=>document.querySelector(s),nf=new Intl.NumberFormat('ar-EG');
 const SIZES={note:{a6:['A6',105,148],a5:['A5',148,210],b5:['B5',176,250],a4:['A4',210,297]},book:{pocket:['جيب',110,178],novel:['روائي',130,200],std:['قياسي',140,210],big:['كبير',152,229]}};
 const COVERS=['#6b3f2a','#23405a','#3d5a40','#5a2f3d','#2e2e36','#7a5c2e'];
-const SITE=Object.assign({title:'رفّ القصص',sub:''},window.SITE||{});
+const SITE=Object.assign({title:'رقعة الحرب',sub:'مخطوطة رقمية تتيح للجنة قراءة العمل ومواد تقديمه في تجربة تشبه تصفّح الكتب الورقية.'},window.SITE||{});
+const KINDS={story:'القصة / المخطوطة الرئيسية',logline:'Logline',synopsis:'Synopsis',treatment:'Treatment',scene:'المشهد النموذجي',bio:'السيرة الذاتية',other:'مادة أخرى'};
 const KEY='dafater-v1',clone=o=>JSON.parse(JSON.stringify(o));
 let lib=[],bk=null,M=null,pos=0,spread=true,snap=[],lastW=0;
 const book=$('#book'),gh=$('#gh'),T={R:$('#tR'),L:$('#tL')},P={R:$('#pR'),L:$('#pL')},NO={R:$('#nR'),L:$('#nL')};
@@ -163,8 +167,9 @@ function savePos(){try{const d=JSON.parse(localStorage.getItem('dafater-pos')||'
 
 function loadLib(){
   const seed=Array.isArray(window.STORIES)?window.STORIES:[];
-  if(!WRITE){lib=seed;return}
+  if(!WRITE){lib=seed.filter(b=>b.published!==false);return}
   try{const d=JSON.parse(localStorage.getItem(KEY)||'null');lib=Array.isArray(d)?d:clone(seed)}catch(e){lib=clone(seed)}
+  lib.forEach(b=>{if(typeof b.published!=='boolean')b.published=true;if(!b.kind)b.kind='story'});
 }
 function saveLib(){if(!WRITE)return;try{localStorage.setItem(KEY,JSON.stringify(lib))}catch(e){toast('تعذّر الحفظ على هذا الجهاز')}}
 
@@ -184,13 +189,14 @@ function renderShelf(){
     const m=metrics(b),sz=SIZES[b.type][b.size],u=usage(b),it=el('div','item'),c=el('button','cov');c.append(el('b','t',b.title));if(b.author)c.append(el('small','au',b.author));
     c.style.cssText='--c:'+cv(b)+';width:'+Math.round(sz[1]*1.1)+'px;aspect-ratio:1/'+m.ratio;
     c.onclick=()=>openBook(b.id);
-    it.append(c,el('span','meta',(b.type==='note'?'دفتر ':'كتاب ')+sz[0]+'، '+nf.format(b.pages)+' صفحة'));
+    it.append(c,el('span','meta',(KINDS[b.kind]||KINDS.story)+' · '+(b.type==='note'?'دفتر ':'كتاب ')+sz[0]+' · '+nf.format(b.pages)+' صفحة'));
     const bar=el('div','fill'),f=el('i');f.style.width=Math.round(u.u/b.pages*100)+'%';bar.append(f);it.append(bar);
     if(WRITE){
-      const r=el('div','row'),a=el('button','sm','تعديل'),d=el('button','sm','حذف');
+      const r=el('div','row'),a=el('button','sm','تعديل'),d=el('button','sm','حذف'),pub=el('button','sm',b.published?'منشور للجنة':'خاص');
       a.onclick=()=>{const n=prompt('عنوان الدفتر',b.title);if(n==null)return;if(n.trim())b.title=n.trim();const au=prompt('اسم الكاتب (اتركه فاضي لإخفائه)',b.author||'');if(au!=null)b.author=au.trim();saveLib();renderShelf()};
       d.onclick=()=>{if(confirm('حذف «'+b.title+'» نهائياً؟')){lib=lib.filter(x=>x!==b);saveLib();renderShelf()}};
-      r.append(a,d);it.append(r);
+      pub.onclick=()=>{b.published=!b.published;saveLib();renderShelf()};
+      r.append(a,d,pub);it.append(r);
     }
     box.append(it);
   });
@@ -333,7 +339,7 @@ $('#new').onclick=()=>{$('#ftitle').value='';$('#fauthor').value='';fillSizes();
 $('#cx').onclick=()=>dlg.close();
 $('#mk').onclick=()=>{
   const n=+$('#fpages').value;
-  lib.push({id:'b'+Date.now().toString(36),title:$('#ftitle').value.trim()||'بدون عنوان',type:$('#ftype').value,size:$('#fsize').value,pages:n,paper:$('#fpaper').value,cover:fc,author:$('#fauthor').value.trim(),ink:$('#fink').value,content:Array(n).fill('')});
+  lib.push({id:'b'+Date.now().toString(36),title:$('#ftitle').value.trim()||'بدون عنوان',type:$('#ftype').value,kind:$('#fkind').value,published:$('#fpublish').checked,size:$('#fsize').value,pages:n,paper:$('#fpaper').value,cover:fc,author:$('#fauthor').value.trim(),ink:$('#fink').value,content:Array(n).fill('')});
   saveLib();renderShelf();dlg.close();
 };
 function toPDF(){
@@ -366,8 +372,9 @@ $('#jp').addEventListener('keydown',e=>{
 });
 function dl(n,s,t){const a=el('a');a.href=URL.createObjectURL(new Blob([s],{type:t}));a.download=n;document.body.append(a);a.click();a.remove()}
 function exportJS(){
-  dl('stories.js','window.SITE='+JSON.stringify(SITE)+';\nwindow.STORIES='+JSON.stringify(lib,null,1)+';\n','text/javascript');
-  toast('نزل ملف stories.js، بدّله بالملف اللي في المستودع');
+  const publicLib=lib.filter(b=>b.published!==false);
+  dl('stories.js','window.SITE='+JSON.stringify(SITE)+';\nwindow.STORIES='+JSON.stringify(publicLib,null,1)+';\n','text/javascript');
+  toast('تم تجهيز المواد المنشورة فقط. ارفع stories.js إلى المستودع لتحديث واجهة اللجنة');
 }
 $('#exp').onclick=exportJS;$('#epub').onclick=exportJS;
 $('#etxt').onclick=()=>{if(!bk)return;dl((bk.title||'قصة')+'.txt','\ufeff'+bk.title+'\n\n'+bk.content.join('\n\n').replace(/\n{3,}/g,'\n\n').trim()+'\n','text/plain');toast('نزل ملف النص')};
