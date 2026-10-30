@@ -48,7 +48,7 @@ background:linear-gradient(to left,rgba(0,0,0,.3),rgba(255,255,255,.07) 4%,trans
 .ttl small{color:var(--mut);font-size:14px}
 .nav{justify-content:center;gap:12px}
 #ind,#bs{color:var(--mut);font-size:15px}
-.jp{width:70px;text-align:center;border:1px solid var(--bd);border-radius:999px;background:transparent;padding:5px}
+.docpick{max-width:min(38vw,230px);min-width:120px;background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:6px 10px}.jp{width:70px;text-align:center;border:1px solid var(--bd);border-radius:999px;background:transparent;padding:5px}
 .menu{position:relative}
 .menu summary{list-style:none;cursor:pointer;border:1px solid var(--bd);border-radius:999px;padding:6px 16px}
 .menu summary::-webkit-details-marker{display:none}
@@ -118,6 +118,7 @@ body>*:not(#pr){display:none!important}
   <div class="bar">
     <button id="back" type="button">الرفّ</button>
     <div class="ttl"><b id="bt"></b><small id="ba"></small></div>
+    <select id="docpick" class="docpick" aria-label="اختيار مادة للقراءة"></select>
     <details class="menu" id="menu"><summary>القائمة</summary><div class="mi">
       <button id="epdf" type="button">تحميل PDF</button>
       <button id="efs" type="button">ملء الشاشة</button>
@@ -304,7 +305,9 @@ function openBook(id){
   bk=lib.find(b=>b.id===id);if(!bk)return;
   while(bk.content.length<bk.pages)bk.content.push('');
   M=metrics(bk);pos=getPos(bk);
-  $('#shelf').hidden=true;$('#reader').hidden=false;$('#bt').textContent=bk.title;$('#ba').textContent=bk.author||'';$('#rw').hidden=!WRITE;$('#menu').removeAttribute('open');
+  $('#shelf').hidden=true;$('#reader').hidden=false;
+  const pick=$('#docpick');pick.replaceChildren();lib.forEach(x=>pick.add(new Option((KINDS[x.kind]||KINDS.story)+' — '+x.title,x.id)));pick.value=bk.id;
+  $('#bt').textContent=bk.title;$('#ba').textContent=bk.author||'';$('#rw').hidden=!WRITE;$('#menu').removeAttribute('open');
   const s=book.style;s.setProperty('--ratio',M.ratio);
   ['fs','lh','pt','pb','mg'].forEach(k=>s.setProperty('--'+k,M[k]));s.setProperty('--c',cv(bk));s.setProperty('--ink',inkOf(bk));
   book.classList.toggle('lined',bk.paper==='lined');
@@ -317,6 +320,7 @@ function openBook(id){
     snap=bk.content.slice();render(0);
   });
 }
+$('#docpick').onchange=e=>openBook(e.target.value);
 $('#back').onclick=()=>{bk=null;$('#reader').hidden=true;$('#shelf').hidden=false;renderShelf()};
 $('#prev').onclick=()=>turn(-1);$('#next').onclick=()=>turn(1);
 addEventListener('resize',()=>{if(!bk||innerWidth===lastW)return;const o=spread;layout();if(o!==spread)render(0)});
