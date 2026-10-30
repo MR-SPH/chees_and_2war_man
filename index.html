@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>رقعة الحرب — مكتبة المخطوطات</title>
-<meta name="description" content="مكتبة رقمية أدبية لقراءة مخطوطة رقعة الحرب ومواد التقديم إلى مختبر سرديات.">
+<meta name="description" content="مكتبة رقمية لقراءة المعالجة السينمائية لرقعة الحرب ومواد تقديم العمل.">
 <meta name="theme-color" content="#f3eee4">
 <meta name="author" content="صاحب العمل الأدبي">
 <meta name="keywords" content="رقعة الحرب، قصة أدبية، الشطرنج، الحرب، مكتبة المخطوطات، مختبر سرديات">
 <meta property="og:type" content="book">
 <meta property="og:title" content="رقعة الحرب — مخطوطة أدبية">
-<meta property="og:description" content="عمل سردي يوظف عالم الشطرنج والحرب ضمن تجربة قراءة رقمية على هيئة كتاب.">
+<meta property="og:description" content="معالجة سينمائية لدراما حربية وإنسانية، تُقدَّم ضمن تجربة قراءة رقمية على هيئة كتاب.">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -17,8 +17,8 @@
   "name": "رقعة الحرب",
   "alternateName": "مكتبة المخطوطات",
   "inLanguage": "ar",
-  "genre": "قصة أدبية",
-  "description": "عمل سردي يوظف عالم الشطرنج والحرب ضمن تجربة قراءة رقمية مصممة على هيئة كتاب. يتيح الموقع الوصول إلى المخطوطة والمواد السردية والتعريفية المرتبطة بها.",
+  "genre": "معالجة سينمائية",
+  "description": "معالجة سينمائية لدراما حربية وإنسانية، مع Logline وSynopsis ومشهد نموذجي، ضمن مكتبة قراءة رقمية مصممة على هيئة كتاب.",
   "about": [
     {"@type": "Thing", "name": "الشطرنج"},
     {"@type": "Thing", "name": "الحرب"},
@@ -126,7 +126,7 @@ body>*:not(#pr){display:none!important}
 </head>
 <body>
 <div id="shelf" class="view">
-  <button id="wm" class="gbtn" type="button">وضع الكتابة</button>
+  <button id="wm" class="gbtn" type="button" hidden>إخفاء وضع الكتابة</button>
   <p class="concept" id="concept">مكتبة المخطوطات · مساحة رقمية لقراءة الأعمال السردية</p>
   <div class="hero"><h1 id="st"></h1></div>
   <p class="sub" id="ss"></p>
@@ -179,7 +179,7 @@ let WRITE=location.hash==='#write';const $=s=>document.querySelector(s),nf=new I
 const SIZES={note:{a6:['A6',105,148],a5:['A5',148,210],b5:['B5',176,250],a4:['A4',210,297]},book:{pocket:['جيب',110,178],novel:['روائي',130,200],std:['قياسي',140,210],big:['كبير',152,229]}};
 const COVERS=['#6b3f2a','#23405a','#3d5a40','#5a2f3d','#2e2e36','#7a5c2e'];
 const SITE=Object.assign({title:'رقعة الحرب',sub:'مخطوطة رقمية تتيح للجنة قراءة العمل ومواد تقديمه في تجربة تشبه تصفّح الكتب الورقية.'},window.SITE||{});
-const KINDS={story:'القصة / المخطوطة الرئيسية',logline:'Logline',synopsis:'Synopsis',treatment:'Treatment',scene:'المشهد النموذجي',bio:'السيرة الذاتية',other:'مادة أخرى'};
+const KINDS={story:'المادة الرئيسية',logline:'Logline',synopsis:'Synopsis',treatment:'المعالجة السينمائية',scene:'المشهد النموذجي',bio:'السيرة الذاتية',other:'مادة أخرى'};
 const KEY='dafater-v1',clone=o=>JSON.parse(JSON.stringify(o));
 let lib=[],bk=null,M=null,pos=0,spread=true,snap=[],lastW=0;
 const book=$('#book'),gh=$('#gh'),T={R:$('#tR'),L:$('#tL')},P={R:$('#pR'),L:$('#pL')},NO={R:$('#nR'),L:$('#nL')};
@@ -407,8 +407,8 @@ function exportJS(){
 }
 $('#exp').onclick=exportJS;$('#epub').onclick=exportJS;
 $('#etxt').onclick=()=>{if(!bk)return;dl((bk.title||'قصة')+'.txt','\ufeff'+bk.title+'\n\n'+bk.content.join('\n\n').replace(/\n{3,}/g,'\n\n').trim()+'\n','text/plain');toast('نزل ملف النص')};
-function setMode(v){WRITE=v;loadLib();$('#wbar').hidden=!v;$('#wm').textContent=v?'وضع القراءة':'وضع الكتابة';renderShelf()}
-$('#wm').onclick=()=>setMode(!WRITE);
+function setMode(v){WRITE=v;loadLib();$('#wbar').hidden=!v;$('#wm').hidden=!v;$('#wm').textContent='إخفاء وضع الكتابة';renderShelf()}
+$('#wm').onclick=()=>{history.replaceState(null,'',location.pathname+location.search);setMode(false)};
 setMode(WRITE);
 </script>
 </body>
