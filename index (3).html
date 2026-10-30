@@ -341,7 +341,7 @@ $('#fpages').value=80;
 COVERS.forEach(c=>{const b=el('button','sw');b.type='button';b.style.background=c;b.setAttribute('aria-label','لون الغلاف');
   b.onclick=()=>{fc=c;[...$('#fcov').children].forEach(x=>x.classList.toggle('on',x===b))};$('#fcov').append(b)});
 $('#ftype').onchange=fillSizes;
-$('#new').onclick=()=>{$('#ftitle').value='';$('#fauthor').value='';fillSizes();fc=COVERS[0];[...$('#fcov').children].forEach((x,i)=>x.classList.toggle('on',i===0));dlg.showModal()};
+$('#new').onclick=()=>{$('#ftitle').value='رقعة الحرب';$('#fauthor').value='';$('#fkind').value='story';$('#fpublish').checked=true;fillSizes();fc=COVERS[0];[...$('#fcov').children].forEach((x,i)=>x.classList.toggle('on',i===0));dlg.showModal()};
 $('#cx').onclick=()=>dlg.close();
 $('#mk').onclick=()=>{
   const n=+$('#fpages').value;
